@@ -107,19 +107,21 @@ parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs
 parser.add_argument('--batch_size', type=int, default=10, help='batch size')
 parser.add_argument('--left_trim', type=bool, default=False, help='if the data has negative values, please specify True')
 parser.add_argument('--output', type=str, default='output', help='the output directory of the model and plots')
+parser.add_argument('--distribution', type=str, default='zinb', help='one distribution of [zinb,nb]')
 args = parser.parse_args()
 
 def preprocess(adata):
     pass
 
-def main(data_directory, plot_embedding=False,clustering=False,lable_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output'):
+def main(data_directory, distribution='zinb',plot_embedding=False,clustering=False,lable_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output'):
     adata = sc.read(data_directory)
+    print('Using distribution: ', distribution)
     data_name = data_directory.split('/')[-1].split('.')[0]
     # adata = preprocess(adata) if the data need to be preprocessed
     assert np.min(adata.X) >= 0, 'Your data has negative values, pleaes specify --left_trim True if you still want to use this data'
 
     cell_loader=DataLoader(adata.X,batch_size=batch_size)
-    vae = VAE(input_dim = adata.shape[1], hidden_dim = 400, latent_dim=40,distribution='zinb') #distribution = 'nb' to use negative binomial distribution
+    vae = VAE(input_dim = adata.shape[1], hidden_dim = 400, latent_dim=40,distribution=distribution) #distribution = 'nb' to use negative binomial distribution
     if use_cuda:
         vae.cuda()
     optimizer = optim.Adam(lr=lr, params=vae.parameters())
@@ -155,14 +157,14 @@ def main(data_directory, plot_embedding=False,clustering=False,lable_name = None
     if plot_embedding:
         sc.tl.umap(adata)
         if lable_name is not None:
-            sc.pl.umap(adata,color=lable_name,size=50,save='_{}_{}_embedding.png'.format(data_name,lable_name))
+            sc.pl.umap(adata,color=lable_name,size=50,save='_{}_{}_{}_embedding.png'.format(data_name,distribution,lable_name))
         if clustering:
             sc.tl.leiden(adata)
-            sc.pl.umap(adata,color='leiden',size=50, save='_{}_leiden_clustering.png'.format(data_name))
+            sc.pl.umap(adata,color='leiden',size=50, save='_{}_{}_leiden_clustering.png'.format(data_name,distribution))
     # torch.save(vae, output) #save the model if you want
 
 
 if __name__ == '__main__':
 
     assert args.data_dir != None,'Please provide the data directory!'
-    main(args.data_dir,args.plot_embedding,args.clustering,args.lable_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output)
+    main(args.data_dir,args.distribution, args.plot_embedding,args.clustering,args.lable_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output)

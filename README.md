@@ -24,17 +24,17 @@ git clone https://github.com/Szym29/ZeroInflatedNegativeBinomial_VAE.git
 cd ZeroInflatedNegativeBinomial_VAE
 ```
 
-Please use `python example_zinb_nb_VAE_pytorch.py -h` to find the usage of keywords like input data directory, leraning rate, and the name of cell type attributes, plotting latent embedding with umaps or not, and etc. 
+Please use `python example_zinb_nb_VAE_pytorch.py -h` to find the usage of keywords like input data directory, leraning rate, assumption of data distribution, and the name of cell type attributes, plotting latent embedding with umaps or not, and etc. 
 
 The `--data_dir` is required for running the script
 
 Example:
 
 ```
-python example_zinb_nb_VAE_pytorch.py --data_dir example.h5ad --use_cuda True --plot_embedding True --clustering True --lable_name celltype
+python example_zinb_nb_VAE_pytorch.py --data_dir example.h5ad --distribution zinb --use_cuda True --plot_embedding True --clustering True --lable_name celltype
 ```
 
-The VAE model will be trained using GPU, and doing `leiden` clustering on the latent representation level. Plot the latent representation using umap and coloring by cell types labels and clustering results. (Plots can be found at `./figures/`)
+The VAE model will apply zero-inflated negative binomial distribution and be trained using GPU, and doing `leiden` clustering on the latent representation level. Plot the latent representation using umap and coloring by cell types labels and clustering results. (Plots can be found at `./figures/`)
 
 If your single cell data is not preprocessed, you can extends the `preprocess(adata)` function and uncomment the `adata = preprocess(adata)` in the `main` function to use the preprocessed data. You can also simply pass the directory of preprocessed data into the script. 
 
