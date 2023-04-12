@@ -53,8 +53,9 @@ class VAE(nn.Module):
         mu, logvar = self.encode(x.view(-1, self.input_dim))
         return mu+logvar
     # def getnerate
-    def zinb_sample(self, x, sample_shape,random=False):
+    def generate(self, x, sample_shape,random=False):
         '''
+        generate samples from the model
         sample_shape: shape of sample
         '''
         mu, logvar = self.encode(x.view(-1, self.input_dim))
@@ -76,7 +77,7 @@ class VAE(nn.Module):
             return distribution.mean #return the mean of zinb distribution
     def kl_d(self, mu, logvar):
         return -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    def zinb_reconstruction_loss(self, x, mu, dropout_logits):
+    def reconstruction_loss(self, x, mu, dropout_logits):
         '''
         x: input data
         mu: output of decoder
@@ -92,7 +93,7 @@ class VAE(nn.Module):
             distribution = NegativeBinomial(total_count=theta, logits=nb_logits,validate_args=False)
         return distribution.log_prob(x).sum(-1).mean()
     def loss_function(self, x, mu, dropout_logits, mu_, logvar_):
-        reconstruction_loss = self.zinb_reconstruction_loss(x, mu, dropout_logits)
+        reconstruction_loss = self.reconstruction_loss(x, mu, dropout_logits)
         kl_div = self.kl_d(mu_, logvar_)
         return -reconstruction_loss + kl_div
 
