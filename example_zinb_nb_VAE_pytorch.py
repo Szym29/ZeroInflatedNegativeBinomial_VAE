@@ -97,19 +97,7 @@ class VAE(nn.Module):
         kl_div = self.kl_d(mu_, logvar_)
         return -reconstruction_loss + kl_div
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', type=str, default=None, help='data directory')
-parser.add_argument('--plot_embedding', type=bool, default=True, help='plot latent space embedding')
-parser.add_argument('--clustering', type=bool, default=True, help='do leiden clustering')
-parser.add_argument('--lable_name', type=str, default=None, help='the name of ground truth lable if applicable')
-parser.add_argument('--lr', type=float, default=1.0e-4, help='the learning rate of the model')
-parser.add_argument('--use_cuda', type=bool, default=False, help='use cuda or not')
-parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs')
-parser.add_argument('--batch_size', type=int, default=10, help='batch size')
-parser.add_argument('--left_trim', type=bool, default=False, help='if the data has negative values, please specify True')
-parser.add_argument('--output', type=str, default='output', help='the output directory of the model and plots')
-parser.add_argument('--distribution', type=str, default='zinb', help='one distribution of [zinb,nb]')
-args = parser.parse_args()
+
 
 def preprocess(adata):
     pass
@@ -164,7 +152,19 @@ def main(data_directory, distribution='zinb',plot_embedding=False,clustering=Fal
             sc.pl.umap(adata,color='leiden',size=50, save='_{}_{}_leiden_clustering.png'.format(data_name,distribution))
     # torch.save(vae, output) #save the model if you want
 
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--data_dir', type=str, default=None, help='data directory')
+parser.add_argument('--plot_embedding', type=bool, default=True, help='plot latent space embedding')
+parser.add_argument('--clustering', type=bool, default=True, help='do leiden clustering')
+parser.add_argument('--lable_name', type=str, default=None, help='the name of ground truth lable if applicable')
+parser.add_argument('--lr', type=float, default=1.0e-4, help='the learning rate of the model')
+parser.add_argument('--use_cuda', type=bool, default=False, help='use cuda or not')
+parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs')
+parser.add_argument('--batch_size', type=int, default=10, help='batch size')
+parser.add_argument('--left_trim', type=bool, default=False, help='if the data has negative values, please specify True')
+parser.add_argument('--output', type=str, default='output', help='the output directory of the model and plots')
+parser.add_argument('--distribution', type=str, default='zinb', help='one distribution of [zinb,nb]')
+args = parser.parse_args()
 if __name__ == '__main__':
 
     assert args.data_dir != None,'Please provide the data directory!'
