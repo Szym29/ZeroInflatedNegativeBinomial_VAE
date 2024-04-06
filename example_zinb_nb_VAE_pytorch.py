@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import scipy.sparse as sp
 import os
-import scipy.sparse as sp
 from torch.utils.data import DataLoader
 from torch.distributions import NegativeBinomial
 from pyro.distributions.zero_inflated import ZeroInflatedNegativeBinomial
@@ -113,11 +112,8 @@ def main(data_directory, distribution='zinb',plot_embedding=False,clustering=Fal
         adata.X[adata.X<0]=0
     # adata = preprocess(adata) if the data need to be preprocessed
     assert np.min(adata.X) >= 0, 'Your data has negative values, pleaes specify --left_trim True if you still want to use this data'
-    if sp.isspmatrix(adata.X):
-        adata.X = adata.X.toarray()
     dataset = H5adDataSet(adata)
     cell_loader = DataLoader(dataset,batch_size=batch_size)
-    cell_loader=DataLoader(adata.X,batch_size=batch_size)
     vae = VAE(input_dim = dataset.num_genes(), hidden_dim = 400, latent_dim=40,distribution=distribution,log_data=log_data) #distribution = 'nb' to use negative binomial distribution
     if use_cuda:
         vae.cuda()
