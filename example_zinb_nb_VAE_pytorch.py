@@ -1,5 +1,6 @@
 import numpy as np
 import scanpy as sc
+from utils import H5adDataSet
 import argparse
 import torch
 import torch.nn as nn
@@ -7,11 +8,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 import scipy.sparse as sp
 import os
+import scipy.sparse as sp
 from torch.utils.data import DataLoader
 from torch.distributions import NegativeBinomial
 from pyro.distributions.zero_inflated import ZeroInflatedNegativeBinomial
 class VAE(nn.Module):
-    def __init__(self, input_dim, hidden_dim, latent_dim,distribution='zinb'):
+    def __init__(self, input_dim, hidden_dim, latent_dim,distribution='zinb',log_data = False):
         super(VAE, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -23,8 +25,11 @@ class VAE(nn.Module):
         self.fc4 = nn.Linear(hidden_dim, input_dim)
         self.fc5 = nn.Linear(hidden_dim, input_dim)
         self.distribution = distribution
+        self.log_data = log_data
         self.log_theta = torch.nn.Parameter(torch.randn(input_dim))
     def encode(self, x):
+        if not self.log_data:
+            x = torch.log(x+1)
         h1 = F.softplus(self.fc1(x))
         return self.fc21(h1), self.fc22(h1)
 
@@ -39,9 +44,7 @@ class VAE(nn.Module):
         dropout_logits = self.fc5(h3)
         return torch.exp(mu), dropout_logits
 
-    def forward(self, x):
-        x = torch.log(x+1)
-        
+    def forward(self, x):   
         mu, logvar = self.encode(x.view(-1, self.input_dim))
         z = self.reparameterize(mu, logvar)
         #zinb distribution
@@ -102,15 +105,20 @@ class VAE(nn.Module):
 def preprocess(adata):
     pass
 
-def main(data_directory, distribution='zinb',plot_embedding=False,clustering=False,lable_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output'):
+def main(data_directory, distribution='zinb',plot_embedding=False,clustering=False,lable_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output',log_data = False):
     adata = sc.read(data_directory)
     print('Using distribution: ', distribution)
     data_name = data_directory.split('/')[-1].split('.')[0]
+    if left_trim:
+        adata.X[adata.X<0]=0
     # adata = preprocess(adata) if the data need to be preprocessed
     assert np.min(adata.X) >= 0, 'Your data has negative values, pleaes specify --left_trim True if you still want to use this data'
-
+    if sp.isspmatrix(adata.X):
+        adata.X = adata.X.toarray()
+    dataset = H5adDataSet(adata)
+    cell_loader = DataLoader(dataset,batch_size=batch_size)
     cell_loader=DataLoader(adata.X,batch_size=batch_size)
-    vae = VAE(input_dim = adata.shape[1], hidden_dim = 400, latent_dim=40,distribution=distribution) #distribution = 'nb' to use negative binomial distribution
+    vae = VAE(input_dim = dataset.num_genes(), hidden_dim = 400, latent_dim=40,distribution=distribution,log_data=log_data) #distribution = 'nb' to use negative binomial distribution
     if use_cuda:
         vae.cuda()
     optimizer = optim.Adam(lr=lr, params=vae.parameters())
@@ -164,8 +172,9 @@ parser.add_argument('--batch_size', type=int, default=10, help='batch size')
 parser.add_argument('--left_trim', type=bool, default=False, help='if the data has negative values, please specify True')
 parser.add_argument('--output', type=str, default='output', help='the output directory of the model and plots')
 parser.add_argument('--distribution', type=str, default='zinb', help='one distribution of [zinb,nb]')
+parser.add_argument('--log_data', type=bool, default=False, help='if the data is already log transformed, specify True. Default is False')
 args = parser.parse_args()
 if __name__ == '__main__':
 
     assert args.data_dir != None,'Please provide the data directory!'
-    main(args.data_dir,args.distribution, args.plot_embedding,args.clustering,args.lable_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output)
+    main(args.data_dir,args.distribution, args.plot_embedding,args.clustering,args.lable_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output,args.log_data)
