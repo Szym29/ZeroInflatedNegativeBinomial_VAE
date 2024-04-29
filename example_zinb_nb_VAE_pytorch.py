@@ -53,7 +53,7 @@ class VAE(nn.Module):
 
     def get_latent_representation(self, x):
         mu, logvar = self.encode(x.view(-1, self.input_dim))
-        return mu+logvar
+        return mu + torch.exp(0.5 * logvar)
     # def getnerate
     def generate(self, x, sample_shape,random=False):
         '''
@@ -64,7 +64,7 @@ class VAE(nn.Module):
         if random:
             z = self.reparameterize(mu, logvar)
         else:
-            z = mu+logvar #not using reparameterize
+            z = mu + torch.exp(0.5 * logvar) #not using reparameterize
         mu, dropout_logits = self.decode(z)
         theta = self.log_theta.exp()
         nb_logits = (mu+1e-4).log() - (theta+1e-4).log()
@@ -78,7 +78,7 @@ class VAE(nn.Module):
         else:
             return distribution.mean #return the mean of zinb distribution
     def kl_d(self, mu, logvar):
-        return -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        return torch.mean(-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=-1),dim=0)
     def reconstruction_loss(self, x, mu, dropout_logits):
         '''
         x: input data
