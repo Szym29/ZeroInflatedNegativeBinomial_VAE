@@ -1,4 +1,3 @@
-from sklearn.utils import issparse
 from torch.utils.data import Dataset
 import scipy.sparse as sp
 from scipy.sparse import csc_matrix
