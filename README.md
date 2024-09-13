@@ -1,9 +1,13 @@
 # ZeroInflatedNegativeBinomial_VAE
-This is a very fundamental Variational AutoEncoder model with zero inflated negative binomial distribution and negative binomial distribution. It can be widely applied in the single cell RNA (scRNA) or single cell ATAC (scATAC) data to extract compat low dimensionality representations. (Other data distribution might be added to this repo later on.) 
+This is a very fundamental Variational AutoEncoder model with zero-inflated negative binomial distribution and negative binomial distribution. It can be widely applied in the single cell RNA (scRNA) or single cell ATAC (scATAC) data to extract compact low dimensionality representations. (Other data distribution might be added to this repo later on.) 
 
-For beginers who are inetrested in using VAE for single cell analysis, you can use this as an toy example to play with different parameters like batch_size, learning rate to see how to achieve a better low dimensionality represetnations. 
+For beginners who are interested in using VAE for single cell analysis, you can use this as a toy example to play with different parameters like batch_size, learning rate to see how to achieve a better low dimensionality representation. 
 
-For advanced users or who want to customize their own VAE models on single cell data,  you can easily build a customized VAE model by changing the number of layers and number of neurons in the encoder/decoder structure by specifying the key arguments, or  adding the novel deep learning components, customizing the loss function, and etc.
+For advanced users or who want to customize their own VAE models on single-cell data,  you can easily build a customized VAE model by changing the number of layers and number of neurons in the encoder/decoder structure by specifying the key arguments, or  adding the novel deep learning components, customizing the loss function, and etc.
+
+## Reference
+
+This is the baseline model for the [UNAGI](https://github.com/mcgilldinglab/UNAGI) project. If you find this repository is helpful to your work, please cite this [manuscript](https://www.researchsquare.com/article/rs-3676579/v1).
 
 ## Dependencies
 
