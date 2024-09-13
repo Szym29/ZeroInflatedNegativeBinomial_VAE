@@ -144,7 +144,7 @@ def _cosine_similarity(y_true, y_pred):
 
     return cosine_similarity
 
-def main(data_directory, distribution='zinb',plot_embedding=False,clustering=False,lable_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output',log_data = False):
+def main(data_directory, distribution='zinb',plot_embedding=False,clustering=False,label_name = None, lr=1.0e-4, use_cuda=False, num_epochs=10, batch_size=10,left_trim=False,output='output',log_data = False):
     adata = sc.read(data_directory)
     print('Using distribution: ', distribution)
     data_name = data_directory.split('/')[-1].split('.')[0]
@@ -196,8 +196,8 @@ def main(data_directory, distribution='zinb',plot_embedding=False,clustering=Fal
     sc.pp.neighbors(adata, use_rep='z')
     if plot_embedding:
         sc.tl.umap(adata)
-        if lable_name is not None:
-            sc.pl.umap(adata,color=lable_name,size=10,save='_{}_{}_{}_embedding.png'.format(data_name,distribution,lable_name))
+        if label_name is not None:
+            sc.pl.umap(adata,color=label_name,size=10,save='_{}_{}_{}_embedding.png'.format(data_name,distribution,label_name))
         if clustering:
             sc.tl.leiden(adata)
             sc.pl.umap(adata,color='leiden',size=10, save='_{}_{}_leiden_clustering.png'.format(data_name,distribution))
@@ -208,7 +208,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, default=None, help='data directory')
 parser.add_argument('--plot_embedding', type=bool, default=True, help='plot latent space embedding')
 parser.add_argument('--clustering', type=bool, default=True, help='do leiden clustering')
-parser.add_argument('--lable_name', type=str, default=None, help='the name of ground truth lable if applicable')
+parser.add_argument('--label_name', type=str, default=None, help='the name of ground truth label if applicable')
 parser.add_argument('--lr', type=float, default=1.0e-5, help='the learning rate of the model')
 parser.add_argument('--use_cuda', type=bool, default=True, help='use cuda or not')
 parser.add_argument('--num_epochs', type=int, default=100, help='number of epochs')
@@ -221,4 +221,4 @@ args = parser.parse_args()
 if __name__ == '__main__':
 
     assert args.data_dir != None,'Please provide the data directory!'
-    main(args.data_dir,args.distribution, args.plot_embedding,args.clustering,args.lable_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output,args.log_data)
+    main(args.data_dir,args.distribution, args.plot_embedding,args.clustering,args.label_name,args.lr,args.use_cuda,args.num_epochs,args.batch_size,args.left_trim,args.output,args.log_data)
