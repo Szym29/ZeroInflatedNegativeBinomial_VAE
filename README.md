@@ -35,7 +35,7 @@ The `--data_dir` is required for running the script
 Example:
 
 ```
-python example_zinb_nb_VAE_pytorch.py --data_dir example.h5ad --distribution zinb --use_cuda True --plot_embedding True --clustering True --lable_name celltype
+python example_zinb_nb_VAE_pytorch.py --data_dir example.h5ad --distribution zinb --use_cuda True --plot_embedding True --clustering True --label_name celltype
 ```
 
 The VAE model will apply zero-inflated negative binomial distribution and be trained using GPU, and doing `leiden` clustering on the latent representation level. Plot the latent representation using umap and coloring by cell types labels and clustering results. (Plots can be found at `./figures/`)
