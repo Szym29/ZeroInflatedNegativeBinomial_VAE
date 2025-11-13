@@ -7,7 +7,7 @@ For advanced users or who want to customize their own VAE models on single-cell 
 
 ## Reference
 
-This is the baseline model for the [UNAGI](https://github.com/mcgilldinglab/UNAGI) project. If you find this repository is helpful to your work, please cite this [manuscript](https://www.researchsquare.com/article/rs-3676579/v1).
+This is the baseline model for the [UNAGI](https://github.com/mcgilldinglab/UNAGI) project. If you find this repository is helpful to your work, please cite this [manuscript]([https://www.researchsquare.com/article/rs-3676579/v1](https://www.nature.com/articles/s41551-025-01423-7)).
 
 ## Dependencies
 
